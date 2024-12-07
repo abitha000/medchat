@@ -1,4 +1,5 @@
 import time
+import os
 import logging
 from telegram.error import InvalidToken
 from telegram import Update, InputMediaPhoto, Bot
@@ -82,14 +83,14 @@ def handle_message(update: Update, context: CallbackContext):
 
 # Main function to set up the bot
 def main():
-    # Your Telegram Bot API Token
+    bot_token = os.getenv("TELEGRAM_BOT_TOKEN", "7548088682:AAFL08f6rTFBErJhbDK3uMMC7n_ZJDe3_QM") # Your Telegram Bot API Token
     # Replace with your Telegram Bot API token
     # Initialize the Bot with the correct token
     # Print bot info to verify it's working
 
     # Initialize the Application with the correct token
     
-    application = Application.builder().token('bot').build()
+    application = Application.builder().token('bot_token').build()
 
     # Dispatcher to handle commands and messages
     
