@@ -6,7 +6,7 @@ import pymongo
 from bson.objectid import ObjectId
 
 # MongoDB setup
-client = pymongo.MongoClient("mongodb://localhost:27017/")  # MongoDB URI
+client = pymongo.MongoClient("mongodb+srv://avianandh004:TeamHdt009@cluster0.hdvf3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")  # MongoDB URI
 db = client["medbot"]
 faq_collection = db["faq"]
 
@@ -56,7 +56,7 @@ def request_answer(update: Update, context: CallbackContext):
 
 # Add FAQ command (admin only)
 def add_faq(update: Update, context: CallbackContext):
-    if update.message.from_user.id == YOUR_ADMIN_USER_ID:  # Replace with your admin user ID
+    if update.message.from_user.id == 1556830659:  # Replace with your admin user ID
         if len(context.args) >= 2:
             question = context.args[0]
             answer = ' '.join(context.args[1:])
@@ -82,7 +82,7 @@ def handle_message(update: Update, context: CallbackContext):
 # Main function to set up the bot
 def main():
     # Your Telegram Bot API Token
-    API_TOKEN = "YOUR_API_TOKEN"  # Replace with your Telegram Bot API token
+    API_TOKEN = "6819381670:AAGVK-B6hceOQqOkFcVNeIIZG-cxcI-h_XA"  # Replace with your Telegram Bot API token
 
     updater = Updater(API_TOKEN, use_context=True)
 
