@@ -97,7 +97,7 @@ def main():
     dispatcher.add_handler(CommandHandler("addfaq", add_faq))
 
     # Message Handler for handling questions
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    dispatcher.add_handler(MessageHandler(filters.text & ~filters.command, handle_message))
 
     # Start polling
     updater.start_polling()
