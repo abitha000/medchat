@@ -96,7 +96,7 @@ except InvalidToken as e:
 
     # Initialize the Application with the correct token
     
-    application = Application.builder().token('Bot').build()
+    application = Application.builder().token('bot').build()
 
     # Dispatcher to handle commands and messages
     
