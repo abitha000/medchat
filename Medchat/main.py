@@ -14,7 +14,7 @@ db = client["faq_db"]
 faq_collection = db["faq_collection"]
 
 # Telegram Bot Token from BotFather
-TOKEN = "YOUR_BOT_TOKEN"  # Replace with your actual bot token
+TOKEN = "6819381670:AAGVK-B6hceOQqOkFcVNeIIZG-cxcI-h_XA"  # Replace with your actual bot token
 
 # Command: /start
 def start(update: Update, context: CallbackContext) -> None:
@@ -31,7 +31,7 @@ def help(update: Update, context: CallbackContext) -> None:
 # Command to add a FAQ to the database (Admin only)
 def add_faq(update: Update, context: CallbackContext) -> None:
     # Check if the user is an admin (replace with your admin ID)
-    admin_id = 123456789  # Replace with your actual Telegram user ID
+    admin_id = 1556830659  # Replace with your actual Telegram user ID
 
     if update.message.from_user.id != admin_id:
         update.message.reply_text("You are not authorized to add questions.")
