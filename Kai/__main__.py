@@ -87,17 +87,16 @@ def main():
     application = Application.builder().token('API_TOKEN').build()
 
     # Dispatcher to handle commands and messages
-    dispatcher = application.dispatcher
-
+    
     # Command Handlers
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("help", help_command))
-    dispatcher.add_handler(CommandHandler("support", support_command))
-    dispatcher.add_handler(CommandHandler("request", request_answer))
-    dispatcher.add_handler(CommandHandler("addfaq", add_faq))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("support", support_command))
+    application.add_handler(CommandHandler("request", request_answer))
+    application.add_handler(CommandHandler("addfaq", add_faq))
 
     # Message Handler for handling questions
-    dispatcher.add_handler(MessageHandler(filters.TEXT & ~filters.command, handle_message))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.command, handle_message))
 
     # Start polling
     updater.start_polling()
