@@ -1,6 +1,5 @@
 import time
 import logging
-import config
 from telegram.error import InvalidToken
 from config import BOT_TOKEN
 from telegram import Update, InputMediaPhoto, Bot
