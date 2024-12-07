@@ -99,8 +99,8 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & ~filters.Command(), handle_message))
 
     # Start polling
-    updater.start_polling()
-    updater.idle()
+    application.start_polling()
+    application.idle()
 
 if __name__ == '__main__':
     main()
