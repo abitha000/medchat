@@ -1,6 +1,7 @@
 import time
 import logging
 from telegram.error import InvalidToken
+from config import BOT_TOKEN
 from telegram import Update, InputMediaPhoto, Bot
 from telegram.ext import Updater, CommandHandler, MessageHandler, filters, CallbackContext, Application
 import pymongo
