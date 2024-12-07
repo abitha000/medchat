@@ -83,7 +83,8 @@ def handle_message(update: Update, context: CallbackContext):
 def main():
     # Your Telegram Bot API Token
     bot = Bot(token="7548088682:AAFL08f6rTFBErJhbDK3uMMC7n_ZJDe3_QM")  # Replace with your Telegram Bot API token
-
+    print(bot.get_me())
+    
     application = Application.builder().token('bot').build()
 
     # Dispatcher to handle commands and messages
