@@ -9,7 +9,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # MongoDB Setup (replace with your MongoDB URI if using MongoDB Atlas)
-client = pymongo.MongoClient("mongodb://localhost:27017/")  # Replace with your MongoDB URI
+client = pymongo.MongoClient("mongodb+srv://avianandh004:TeamHdt009@cluster0.hdvf3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")  # Replace with your MongoDB URI
 db = client["faq_db"]
 faq_collection = db["faq_collection"]
 
