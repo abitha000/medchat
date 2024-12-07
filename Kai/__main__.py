@@ -84,11 +84,11 @@ def handle_message(update: Update, context: CallbackContext):
 # Main function to set up the bot
 def main():
     bot_token = os.getenv("TELEGRAM_BOT_TOKEN", "7548088682:AAFL08f6rTFBErJhbDK3uMMC7n_ZJDe3_QM") # Your Telegram Bot API Token
-try:
-    bot = Bot(token=TOKEN)
-    print(bot.get_me())
-except InvalidToken:
-    print("Invalid token. Please check the token and try again")
+    try:
+        bot = Bot(token=TOKEN)
+        print(bot.get_me())
+    except InvalidToken:
+        print("Invalid token. Please check the token and try again")
     # Replace with your Telegram Bot API token
     # Initialize the Bot with the correct token
     # Print bot info to verify it's working
