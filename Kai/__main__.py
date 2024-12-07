@@ -82,7 +82,7 @@ def handle_message(update: Update, context: CallbackContext):
 # Main function to set up the bot
 def main():
     # Your Telegram Bot API Token
-    BOT_TOKEN = "6819381670:AAHD1A9cWJJDA1u2ZTox9X-_GIY1ciXPaDo"  # Replace with your Telegram Bot API token
+    BOT_TOKEN = "7548088682:AAFL08f6rTFBErJhbDK3uMMC7n_ZJDe3_QM"  # Replace with your Telegram Bot API token
 
     application = Application.builder().token('BOT_TOKEN').build()
 
