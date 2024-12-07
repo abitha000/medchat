@@ -1,6 +1,6 @@
 import time
 import logging
-from telegram import Update, InputMediaPhoto
+from telegram import Update, InputMediaPhoto, bot
 from telegram.ext import Updater, CommandHandler, MessageHandler, filters, CallbackContext, Application
 import pymongo
 from bson.objectid import ObjectId
@@ -82,9 +82,9 @@ def handle_message(update: Update, context: CallbackContext):
 # Main function to set up the bot
 def main():
     # Your Telegram Bot API Token
-    BOT_TOKEN = "7548088682:AAFL08f6rTFBErJhbDK3uMMC7n_ZJDe3_QM"  # Replace with your Telegram Bot API token
+    bot = Bot(token="7548088682:AAFL08f6rTFBErJhbDK3uMMC7n_ZJDe3_QM")  # Replace with your Telegram Bot API token
 
-    application = Application.builder().token('BOT_TOKEN').build()
+    application = Application.builder().token('bot').build()
 
     # Dispatcher to handle commands and messages
     
