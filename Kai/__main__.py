@@ -1,5 +1,6 @@
 import time
 import logging
+from telegram.error import InvalidToken
 from telegram import Update, InputMediaPhoto, Bot
 from telegram.ext import Updater, CommandHandler, MessageHandler, filters, CallbackContext, Application
 import pymongo
@@ -82,11 +83,16 @@ def handle_message(update: Update, context: CallbackContext):
 # Main function to set up the bot
 def main():
     # Your Telegram Bot API Token
-    bot_token = '7548088682:AAFL08f6rTFBErJhbDK3uMMC7n_ZJDe3_QM'  # Replace with your Telegram Bot API token
+    token = '7548088682:AAFL08f6rTFBErJhbDK3uMMC7n_ZJDe3_QM' # Replace with your Telegram Bot API token
 
+try:
+    bot = Bot(token=token)
+    bot.get_me()  # Test the bot
+    print("Bot initialized successfully!")
+except InvalidToken as e:
+    print(f"Invalid token error: {e}")
     # Initialize the Bot with the correct token
-    bot = Bot(token=bot_token)
-    print(bot.get_me())  # Print bot info to verify it's working
+    # Print bot info to verify it's working
 
     # Initialize the Application with the correct token
     
