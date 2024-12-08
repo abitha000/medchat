@@ -5,7 +5,6 @@ from telegram.constants import ParseMode
 from telegram.helpers import escape_markdown  # for version 20+
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler, CallbackContext
 from pymongo import MongoClient
-from telegram.utils.helpers import escape_markdown
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
