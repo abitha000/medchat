@@ -1,9 +1,8 @@
-import logging
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ParseMode
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler, CallbackContext
 import pymongo
 import time
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, CallbackContext
-from telegram.ext import CallbackContext
+import logging
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
@@ -17,8 +16,7 @@ db = client['faq_bot']
 faq_collection = db['faq']
 
 # Telegram Bot Setup
-updater = Updater(token=os.getenv('TELEGRAM_TOKEN', '7548088682:AAFL08f6rTFBErJhbDK3uMMC7n_ZJDe3_QM'), use_context=True)
-dispatcher = updater.dispatcher
+application = Application.builder().token(os.getenv('TELEGRAM_TOKEN', '7548088682:AAFL08f6rTFBErJhbDK3uMMC7n_ZJDe3_QM')).build()
 
 # Logging Setup
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -163,26 +161,25 @@ def error(update: Update, context: CallbackContext):
 
 def run():
     # Handlers
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("help", help_command))
-    dispatcher.add_handler(CommandHandler("add_question", add_question))
-    dispatcher.add_handler(CommandHandler("edit_question", edit_question))
-    dispatcher.add_handler(CommandHandler("delete_question", delete_question))
-    dispatcher.add_handler(CommandHandler("request", request_question))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("add_question", add_question))
+    application.add_handler(CommandHandler("edit_question", edit_question))
+    application.add_handler(CommandHandler("delete_question", delete_question))
+    application.add_handler(CommandHandler("request", request_question))
 
     # Message Handler for Questions
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.command, handle_message))
 
     # Button Handler
-    dispatcher.add_handler(CallbackQueryHandler(button))
+    application.add_handler(CallbackQueryHandler(button))
 
     # Error Handler
-    dispatcher.add_error_handler(error)
+    application.add_error_handler(error)
 
     # Start Polling
-    updater.start_polling()
-    updater.idle()
+    application.run_polling()
 
 if __name__ == '__main__':
     run()
-    
+  
