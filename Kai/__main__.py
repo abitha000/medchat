@@ -21,7 +21,7 @@ async def simulate_typing(update, context, text):
     """Simulate typing animation for the bot"""
     chat_id = update.message.chat_id
     for i in range(len(text) + 1):
-        time.sleep(0.1)  # Simulating typing delay
+        time.sleep(1.0)  # Simulating typing delay
         await context.bot.send_message(chat_id, text[:i], parse_mode=ParseMode.MARKDOWN)
         await context.bot.send_message(chat_id, text, parse_mode=ParseMode.MARKDOWN)
 
@@ -53,7 +53,7 @@ async def add_qna(update: Update, context: CallbackContext) -> None:
         return
 
     if len(context.args) < 2:
-        await update.message.reply_text("Usage: /add_qna <question> <answer>")
+        await update.message.reply_text("Usage: /add_qna <question> - <answer>")
         return
 
     question = context.args[0]
@@ -63,12 +63,12 @@ async def add_qna(update: Update, context: CallbackContext) -> None:
     collection.insert_one({"question": question, "answer": answer})
     
     simulate_typing(update, context, "The question and answer pair has been added successfully!")
-    await update.message.reply_text(f"Added Q: {question}\nA: {answer}")
+    await update.message.reply_text(f"Added Question: {question}\nAnswer: {answer}")
 
 # Command to edit a question-answer pair
 async def edit_qna(update: Update, context: CallbackContext) -> None:
     """Allow admins to edit an existing QnA"""
-    if update.message.from_user.id != YOUR_ADMIN_USER_ID:
+    if update.message.from_user.id != 1556830659:
         return
 
     if len(context.args) < 3:
@@ -89,7 +89,7 @@ async def edit_qna(update: Update, context: CallbackContext) -> None:
 # Command to delete a question-answer pair
 async def delete_qna(update: Update, context: CallbackContext) -> None:
     """Allow admins to delete a question-answer pair"""
-    if update.message.from_user.id != YOUR_ADMIN_USER_ID:
+    if update.message.from_user.id != 1556830659:
         return
 
     if len(context.args) < 1:
