@@ -170,7 +170,7 @@ def run():
     application.add_handler(CommandHandler("request", request_question))
 
     # Message Handler for Questions
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.command, handle_message))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     # Button Handler
     application.add_handler(CallbackQueryHandler(button))
