@@ -12,12 +12,12 @@ import os
 load_dotenv()
 
 # MongoDB Connection Setup
-client = MongoClient(os.getenv('MONGO_URI'))
+client = MongoClient(os.getenv('MONGO_URI', 'mongodb+srv://avianandh004:TeamHdt009@cluster0.hdvf3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'))
 db = client['faq_bot']
 faq_collection = db['faq']
 
 # Telegram Bot Setup
-updater = Updater(token=os.getenv('TELEGRAM_TOKEN'), use_context=True)
+updater = Updater(token=os.getenv('TELEGRAM_TOKEN', '7548088682:AAFL08f6rTFBErJhbDK3uMMC7n_ZJDe3_QM'), use_context=True)
 dispatcher = updater.dispatcher
 
 # Logging Setup
