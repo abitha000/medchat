@@ -1,186 +1,171 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.constants import ParseMode
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler, CallbackContext
-import pymongo
 import time
 import logging
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.constants import ParseMode
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackQueryHandler, CallbackContext
 from pymongo import MongoClient
-from dotenv import load_dotenv
-import os
+from telegram.utils.helpers import escape_markdown
 
-# Load environment variables
-load_dotenv()
-
-# MongoDB Connection Setup
-client = MongoClient(os.getenv('MONGO_URI', 'mongodb+srv://avianandh004:TeamHdt009@cluster0.hdvf3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'))
-db = client['faq_bot']
-faq_collection = db['faq']
-
-# Telegram Bot Setup
-application = Application.builder().token(os.getenv('TELEGRAM_TOKEN', '7548088682:AAFL08f6rTFBErJhbDK3uMMC7n_ZJDe3_QM')).build()
-
-# Logging Setup
+# Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Language support
-translations = {
-    'en': {
-        "start": "Welcome! I am your FAQ bot. How can I assist you today?",
-        "help": "You can ask questions or request new ones. Use /request to submit a question.",
-        "add_question": "To add a new question, use the command: /add_question followed by your question.",
-        "edit_question": "To edit a question, use the command: /edit_question followed by the question you want to edit.",
-        "delete_question": "To delete a question, use the command: /delete_question followed by the question you want to delete.",
-        "not_found": "Sorry, I couldn't find an answer to that.",
-        "faq_available": "Here are the available questions and answers."
-    },
-    'ta': {
-        "start": "வணக்கம்! நான் உங்கள் கேள்வி பதில் பார்வையாளர். எப்படி உதவ முடியும்?",
-        "help": "நீங்கள் கேள்விகள் கேட்க அல்லது புதிய கேள்வி கேட்டுக் கொள்ளலாம். /request ஐப் பயன்படுத்தி கேள்வி கேட்க.",
-        "add_question": "புதிய கேள்வி சேர்க்க: /add_question உங்கள் கேள்வியுடன்.",
-        "edit_question": "ஒரு கேள்வியை திருத்த: /edit_question உங்கள் கேள்வியை திருத்தவும்.",
-        "delete_question": "ஒரு கேள்வியை நீக்க: /delete_question உங்கள் கேள்வியை நீக்கவும்.",
-        "not_found": "மன்னிக்கவும், இந்த கேள்விக்கு பதில் எதுவும் இல்லை.",
-        "faq_available": "இதுவரை உள்ள கேள்விகள் மற்றும் பதில்கள்."
-    }
-}
+# MongoDB setup
+client = MongoClient("mongodb+srv://avianandh004:TeamHdt009@cluster0.hdvf3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+db = client['telegram_bot_db']
+collection = db['qna']
 
-# Helper Functions
-def get_answer_from_db(question, language='en'):
-    query = {"question": question}
-    result = faq_collection.find_one(query)
-    if result:
-        return result['answer'].get(language, "Answer not available in this language.")
-    return None
+# Define function to simulate typing animation
+def simulate_typing(update, context, text):
+    """Simulate typing animation for the bot"""
+    chat_id = update.message.chat_id
+    for i in range(len(text) + 1):
+        time.sleep(0.1)  # Simulating typing delay
+        context.bot.send_message(chat_id, text[:i], parse_mode=ParseMode.MARKDOWN)
+    context.bot.send_message(chat_id, text, parse_mode=ParseMode.MARKDOWN)
 
-def add_question_to_db(question, answer, language='en'):
-    faq_collection.insert_one({
-        "question": question,
-        "answer": {
-            'en': answer,
-            'ta': answer
-        }
-    })
+# Define function to start the bot
+async def start(update: Update, context: CallbackContext) -> None:
+    """Send a welcome message and inline buttons on /start"""
+    chat_id = update.message.chat_id
 
-def edit_question_in_db(old_question, new_question, answer, language='en'):
-    faq_collection.update_one(
-        {"question": old_question},
-        {"$set": {"question": new_question, "answer": {'en': answer, 'ta': answer}}}
-    )
+    # Send start image
+    start_image_url = "https://example.com/start_image.jpg"  # Replace with your actual image URL
+    context.bot.send_photo(chat_id, start_image_url)
 
-def delete_question_from_db(question):
-    faq_collection.delete_one({"question": question})
-
-def send_welcome(update: Update, context: CallbackContext):
-    user_language = 'ta' if update.message.from_user.language_code == 'ta' else 'en'
-    update.message.reply_text(
-        translations[user_language]['start'],
-        reply_markup=main_menu_keyboard(),
-        parse_mode=ParseMode.MARKDOWN
-    )
-
-def start(update: Update, context: CallbackContext):
-    send_welcome(update, context)
-
-def help_command(update: Update, context: CallbackContext):
-    user_language = 'ta' if update.message.from_user.language_code == 'ta' else 'en'
-    update.message.reply_text(translations[user_language]['help'])
-
-def request_question(update: Update, context: CallbackContext):
-    update.message.reply_text("Please type your question, and we will add it to the FAQ.")
-
-def add_question(update: Update, context: CallbackContext):
-    user_message = ' '.join(context.args)
-    if not user_message:
-        update.message.reply_text("Please provide the question.")
-        return
-
-    answer = "This is the placeholder answer."  # You can modify this to accept answers as well.
-    add_question_to_db(user_message, answer)
-    update.message.reply_text(f"Question '{user_message}' added successfully.")
-
-def edit_question(update: Update, context: CallbackContext):
-    old_question = context.args[0]
-    new_question = context.args[1]
-    answer = ' '.join(context.args[2:])
-    
-    if not old_question or not new_question or not answer:
-        update.message.reply_text("Please provide old question, new question and answer.")
-        return
-
-    edit_question_in_db(old_question, new_question, answer)
-    update.message.reply_text(f"Question '{old_question}' has been updated to '{new_question}'.")
-
-def delete_question(update: Update, context: CallbackContext):
-    question = ' '.join(context.args)
-    if not question:
-        update.message.reply_text("Please provide the question to delete.")
-        return
-
-    delete_question_from_db(question)
-    update.message.reply_text(f"Question '{question}' has been deleted.")
-
-def handle_message(update: Update, context: CallbackContext):
-    question = update.message.text
-    user_language = 'ta' if update.message.from_user.language_code == 'ta' else 'en'
-
-    # Simulate typing animation
-    context.bot.send_chat_action(chat_id=update.message.chat_id, action="typing")
-    time.sleep(1.5)  # Simulate a delay like typing
-
-    # Try to get an answer from the database
-    answer = get_answer_from_db(question, user_language)
-
-    if answer:
-        update.message.reply_text(answer)
-    else:
-        update.message.reply_text(translations[user_language]['not_found'])
-
-def request_for_new_answer(update: Update, context: CallbackContext):
-    update.message.reply_text("Your question will be submitted for review and will be added if appropriate.")
-
-def main_menu_keyboard():
+    # Inline buttons
     keyboard = [
-        [InlineKeyboardButton("Add me to the group", url="https://t.me/YourGroupLink")],
-        [InlineKeyboardButton("Support", callback_data='support')],
+        [InlineKeyboardButton("Add me to the group", url="https://t.me/your_group_link")],
+        [InlineKeyboardButton("Support", url="https://t.me/your_support_link")],
         [InlineKeyboardButton("Help", callback_data='help')]
     ]
-    return InlineKeyboardMarkup(keyboard)
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    
+    # Welcome message with inline buttons
+    simulate_typing(update, context, "Welcome! I'm here to answer your questions in Tamil and English. How can I assist you today?")
+    context.bot.send_message(chat_id, "Welcome! I'm here to assist you with Siddha medicine queries. You can ask in Tamil or English.", reply_markup=reply_markup)
 
-def button(update: Update, context: CallbackContext):
-    query = update.callback_query
-    query.answer()
+# Command to add a question-answer pair
+async def add_qna(update: Update, context: CallbackContext) -> None:
+    """Allow admins to add question and answer to the database"""
+    if update.message.from_user.id != YOUR_ADMIN_USER_ID:  # Replace with your admin user ID
+        return
 
-    if query.data == "help":
-        help_command(update, context)
-    elif query.data == "support":
-        query.edit_message_text("For support, please contact @YourSupportUsername.")
+    if len(context.args) < 2:
+        await update.message.reply_text("Usage: /add_qna <question> <answer>")
+        return
 
-def error(update: Update, context: CallbackContext):
-    logger.warning(f"Update {update} caused error {context.error}")
+    question = context.args[0]
+    answer = " ".join(context.args[1:])
+    
+    # Store in MongoDB
+    collection.insert_one({"question": question, "answer": answer})
+    
+    simulate_typing(update, context, "The question and answer pair has been added successfully!")
+    await update.message.reply_text(f"Added Q: {question}\nA: {answer}")
 
-def run():
-    # Handlers
+# Command to edit a question-answer pair
+async def edit_qna(update: Update, context: CallbackContext) -> None:
+    """Allow admins to edit an existing QnA"""
+    if update.message.from_user.id != YOUR_ADMIN_USER_ID:
+        return
+
+    if len(context.args) < 3:
+        await update.message.reply_text("Usage: /edit_qna <old_question> <new_answer>")
+        return
+
+    old_question = context.args[0]
+    new_answer = " ".join(context.args[1:])
+    
+    # Update the answer in MongoDB
+    result = collection.update_one({"question": old_question}, {"$set": {"answer": new_answer}})
+    if result.modified_count > 0:
+        simulate_typing(update, context, "The question has been updated successfully!")
+        await update.message.reply_text(f"Updated Q: {old_question}\nNew A: {new_answer}")
+    else:
+        await update.message.reply_text(f"Could not find the question: {old_question}")
+
+# Command to delete a question-answer pair
+async def delete_qna(update: Update, context: CallbackContext) -> None:
+    """Allow admins to delete a question-answer pair"""
+    if update.message.from_user.id != YOUR_ADMIN_USER_ID:
+        return
+
+    if len(context.args) < 1:
+        await update.message.reply_text("Usage: /delete_qna <question>")
+        return
+
+    question = context.args[0]
+    
+    # Delete from MongoDB
+    result = collection.delete_one({"question": question})
+    if result.deleted_count > 0:
+        simulate_typing(update, context, "The question has been deleted successfully!")
+        await update.message.reply_text(f"Deleted Q: {question}")
+    else:
+        await update.message.reply_text(f"Could not find the question: {question}")
+
+# Command to get answers from the database
+async def get_answer(update: Update, context: CallbackContext) -> None:
+    """Handle user queries and return stored answers"""
+    question = update.message.text.strip()
+    
+    # Look for the question in the database
+    qna = collection.find_one({"question": question})
+    
+    if qna:
+        answer = qna["answer"]
+        simulate_typing(update, context, f"Answer: {answer}")
+        await update.message.reply_text(answer)
+    else:
+        simulate_typing(update, context, "Sorry, I don't have an answer for that. You can request more information!")
+        await update.message.reply_text("Sorry, I don't have an answer for that. You can request more information!")
+
+# Command for requesting new QnA
+async def request_qna(update: Update, context: CallbackContext) -> None:
+    """Allow users to request a new question-answer pair"""
+    user_request = update.message.text.strip()
+    
+    simulate_typing(update, context, "Your request has been sent to the admins.")
+    await update.message.reply_text(f"Request for new Q&A received: {user_request}\nAdmins will review and respond shortly.")
+
+# Command for help
+async def help(update: Update, context: CallbackContext) -> None:
+    """Send help information"""
+    help_text = "Here are the commands you can use:\n\n"
+    help_text += "/add_qna <question> <answer> - Add a new question-answer pair (Admin only)\n"
+    help_text += "/edit_qna <old_question> <new_answer> - Edit an existing QnA (Admin only)\n"
+    help_text += "/delete_qna <question> - Delete a question-answer pair (Admin only)\n"
+    help_text += "/request_qna <question> - Request a new question-answer pair if not available\n"
+    help_text += "Feel free to ask any question related to Siddha medicine in Tamil or English."
+
+    simulate_typing(update, context, help_text)
+    await update.message.reply_text(help_text)
+
+# Main function to start the bot
+def main():
+    # Replace with your bot's token
+    TOKEN = "7548088682:AAFL08f6rTFBErJhbDK3uMMC7n_ZJDe3_QM"
+    
+    application = Application.builder().token(TOKEN).build()
+
+    # Handlers for commands
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("add_question", add_question))
-    application.add_handler(CommandHandler("edit_question", edit_question))
-    application.add_handler(CommandHandler("delete_question", delete_question))
-    application.add_handler(CommandHandler("request", request_question))
+    application.add_handler(CommandHandler("add_qna", add_qna))
+    application.add_handler(CommandHandler("edit_qna", edit_qna))
+    application.add_handler(CommandHandler("delete_qna", delete_qna))
+    application.add_handler(CommandHandler("request_qna", request_qna))
+    application.add_handler(CommandHandler("help", help))
 
-    # Message Handler for Questions
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    # Handler for user queries
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, get_answer))
 
-    # Button Handler
-    application.add_handler(CallbackQueryHandler(button))
+    # Inline button handler (Help button)
+    application.add_handler(CallbackQueryHandler(help, pattern='^help$'))
 
-    # Error Handler
-    application.add_error_handler(error)
-
-    # Start Polling
+    # Start the bot
     application.run_polling()
 
-if __name__ == '__main__':
-    run()
-  
+if __name__ == "__main__":
+    main()
