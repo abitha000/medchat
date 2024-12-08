@@ -49,7 +49,7 @@ async def start(update: Update, context: CallbackContext) -> None:
 # Command to add a question-answer pair
 async def add_qna(update: Update, context: CallbackContext) -> None:
     """Allow admins to add question and answer to the database"""
-    if update.message.from_user.id != YOUR_ADMIN_USER_ID:  # Replace with your admin user ID
+    if update.message.from_user.id != 1556830659:  # Replace with your admin user ID
         return
 
     if len(context.args) < 2:
