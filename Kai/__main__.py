@@ -17,13 +17,13 @@ db = client['telegram_bot_db']
 collection = db['qna']
 
 # Define function to simulate typing animation
-def simulate_typing(update, context, text):
+async def simulate_typing(update, context, text):
     """Simulate typing animation for the bot"""
     chat_id = update.message.chat_id
     for i in range(len(text) + 1):
         time.sleep(0.1)  # Simulating typing delay
-        context.bot.send_message(chat_id, text[:i], parse_mode=ParseMode.MARKDOWN)
-    context.bot.send_message(chat_id, text, parse_mode=ParseMode.MARKDOWN)
+        await context.bot.send_message(chat_id, text[:i], parse_mode=ParseMode.MARKDOWN)
+        await context.bot.send_message(chat_id, text, parse_mode=ParseMode.MARKDOWN)
 
 # Define function to start the bot
 async def start(update: Update, context: CallbackContext) -> None:
@@ -32,7 +32,7 @@ async def start(update: Update, context: CallbackContext) -> None:
 
     # Send start image
     start_image_url = "https://envs.sh/LaP.jpg"  # Replace with your actual image URL
-    context.bot.send_photo(chat_id, start_image_url)
+    await context.bot.send_photo(chat_id, start_image_url)
 
     # Inline buttons
     keyboard = [
@@ -44,7 +44,7 @@ async def start(update: Update, context: CallbackContext) -> None:
     
     # Welcome message with inline buttons
     simulate_typing(update, context, "Welcome! I'm here to answer your questions in Tamil and English. How can I assist you today?")
-    context.bot.send_message(chat_id, "Welcome! I'm here to assist you with Siddha medicine queries. You can ask in Tamil or English.", reply_markup=reply_markup)
+    await context.bot.send_message(chat_id, "Welcome! I'm here to assist you with Siddha medicine queries. You can ask in Tamil or English.", reply_markup=reply_markup)
 
 # Command to add a question-answer pair
 async def add_qna(update: Update, context: CallbackContext) -> None:
