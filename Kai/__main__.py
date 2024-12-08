@@ -38,7 +38,7 @@ async def start(update: Update, context: CallbackContext) -> None:
     keyboard = [
         [InlineKeyboardButton("Add me to the group", url="https://t.me/Medichat_ro_bot?startgroup=true")],
         [InlineKeyboardButton("Support", url="https://t.me/lochakpochak")],
-        [InlineKeyboardButton("Help", callback_data='help')]
+        [InlineKeyboardButton("Help", callback_data="help")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -141,7 +141,7 @@ async def help(update: Update, context: CallbackContext) -> None:
     help_text += "Feel free to ask any question related to Siddha medicine in Tamil or English."
 
     simulate_typing(update, context, help_text)
-    await update.message.reply_text(help_text)
+    await update.message.reply_text(chat_id, help_text)
 
 # Main function to start the bot
 def main():
