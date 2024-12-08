@@ -31,13 +31,13 @@ async def start(update: Update, context: CallbackContext) -> None:
     chat_id = update.message.chat_id
 
     # Send start image
-    start_image_url = "https://example.com/start_image.jpg"  # Replace with your actual image URL
+    start_image_url = "https://envs.sh/LaP.jpg"  # Replace with your actual image URL
     context.bot.send_photo(chat_id, start_image_url)
 
     # Inline buttons
     keyboard = [
-        [InlineKeyboardButton("Add me to the group", url="https://t.me/your_group_link")],
-        [InlineKeyboardButton("Support", url="https://t.me/your_support_link")],
+        [InlineKeyboardButton("Add me to the group", url="https://t.me/Medichat_ro_bot?startgroup=true")],
+        [InlineKeyboardButton("Support", url="https://t.me/lochakpochak")],
         [InlineKeyboardButton("Help", callback_data='help')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
