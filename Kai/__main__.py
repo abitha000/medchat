@@ -21,7 +21,7 @@ async def simulate_typing(update, context, text):
     """Simulate typing animation for the bot"""
     chat_id = update.message.chat_id
     for i in range(len(text) + 1):
-        time.sleep(1.0)  # Simulating typing delay
+        await asyncio.sleep(1.0)  # Simulating typing delay
         await context.bot.send_message(chat_id, text[:i], parse_mode=ParseMode.MARKDOWN)
         await context.bot.send_message(chat_id, text, parse_mode=ParseMode.MARKDOWN)
 
@@ -43,7 +43,7 @@ async def start(update: Update, context: CallbackContext) -> None:
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     # Welcome message with inline buttons
-    simulate_typing(update, context, "Welcome! I'm here to answer your questions in Tamil and English. How can I assist you today?")
+    await simulate_typing(update, context, "Welcome! I'm here to answer your questions in Tamil and English. How can I assist you today?")
     await context.bot.send_message(chat_id, "Welcome! I'm here to assist you with Siddha medicine queries. You can ask in Tamil or English.", reply_markup=reply_markup)
 
 # Command to add a question-answer pair
@@ -113,13 +113,16 @@ async def get_answer(update: Update, context: CallbackContext) -> None:
     
     # Look for the question in the database
     qna = collection.find_one({"question": question})
+    logger.info(f"Looking for question: {question}")
+    print(collection.find_one({"question": "your test question"}))
+  
     
     if qna:
         answer = qna["answer"]
-        simulate_typing(update, context, f"Answer: {answer}")
+        await simulate_typing(update, context, f"Answer: {answer}")
         await update.message.reply_text(answer)
     else:
-        simulate_typing(update, context, "Sorry, I don't have an answer for that. You can request more information!")
+        await simulate_typing(update, context, "Sorry, I don't have an answer for that. You can request more information!")
         await update.message.reply_text("Sorry, I don't have an answer for that. You can request more information!")
 
 # Command for requesting new QnA
@@ -127,7 +130,7 @@ async def request_qna(update: Update, context: CallbackContext) -> None:
     """Allow users to request a new question-answer pair"""
     user_request = update.message.text.strip()
     
-    simulate_typing(update, context, "Your request has been sent to the admins.")
+    await simulate_typing(update, context, "Your request has been sent to the admins.")
     await update.message.reply_text(f"Request for new Q&A received: {user_request}\nAdmins will review and respond shortly.")
 
 # Command for help
@@ -140,8 +143,9 @@ async def help(update: Update, context: CallbackContext) -> None:
     help_text += "/request_qna <question> - Request a new question-answer pair if not available\n"
     help_text += "Feel free to ask any question related to Siddha medicine in Tamil or English."
 
-    simulate_typing(update, context, help_text)
-    await update.message.reply_text(chat_id, help_text)
+    await update.callback_query.answer()
+    await simulate_typing(update, context, help_text)
+    await update.callback_query(help_text)
 
 # Main function to start the bot
 def main():
